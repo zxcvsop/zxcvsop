@@ -389,7 +389,7 @@ namespace
         auto expand(
                 std::vector<unsigned> & c,
                 BitSet<n_words_> & p,
-				BitSet<n_words_> & used
+		BitSet<n_words_> & used
                 ) -> void
         {
             // ++n_colourings;
@@ -426,7 +426,7 @@ namespace
                 // // now consider not taking v
                 // c.pop_back();
                 // p.unset(v);
-				auto v = p_order[n];
+		auto v = p_order[n];
 
                 // consider taking v
                 c.push_back(v);
@@ -436,16 +436,17 @@ namespace
                 // filter p to contain vertices adjacent to v
                 BitSet<n_words_> new_p = p;
                 graph.intersect_with_row(v, new_p);
-				BitSet<n_words_> new_u = used;
-				graph.intersect_with_row(v,new_u);
-				if(new_p.empty()&&new_u.empty()){
-					// result.count++;
-					potential_new_best(c);
-				}else if(c.size()==1){
-					copy_and_expand(c,new_p,new_u);
-				}else{
-					expand(c,new_p,new_u);
-				}
+		BitSet<n_words_> new_u = used;
+		graph.intersect_with_row(v,new_u);
+		if(new_p.empty()&&new_u.empty()){
+			// result.count++;
+			potential_new_best(c);
+		}else if(c.size()==1){
+			#pragma omp task
+			{ copy_and_expand(c,new_p,new_u);}
+		}else{
+			expand(c,new_p,new_u);
+		}
 
                 // now consider not taking v
                 c.pop_back();
